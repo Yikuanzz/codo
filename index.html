@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>四象限工具 — CODO</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <span class="logo">QUAD/</span>
+  <div class="tool-divider"></div>
+
+  <button class="tool-btn active" data-tool="select" title="选择">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2l7 4.5L6 8l1.5 4L2 2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+  </button>
+  <button class="tool-btn" data-tool="text" title="文字">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3h10M7 3v8M4 11h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+  </button>
+  <button class="tool-btn" data-tool="rect" title="矩形">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="3" width="10" height="8" rx="1.5" stroke="currentColor" stroke-width="1.4"/></svg>
+  </button>
+  <button class="tool-btn" data-tool="circle" title="圆形">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.4"/></svg>
+  </button>
+  <button class="tool-btn" data-tool="card" title="卡片">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1.5" y="2.5" width="11" height="9" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M4.5 5.5h5M4.5 8h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+  </button>
+  <button class="tool-btn" data-tool="icon" title="图标">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2l1.4 3.1L12 5.5l-2.5 2.4.6 3.5L7 9.8 3.9 11.4l.6-3.5L2 5.5l3.6-.4L7 2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+  </button>
+  <button class="tool-btn" data-tool="line" title="连线">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 11C3 11 5 5 11 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="3" cy="11" r="1.5" fill="currentColor"/><circle cx="11" cy="3" r="1.5" fill="currentColor"/></svg>
+  </button>
+
+  <div class="tool-divider"></div>
+  <div class="active-tool-badge" id="active-tool-badge">
+    <svg width="10" height="10" viewBox="0 0 14 14" fill="none"><path d="M2 2l7 4.5L6 8l1.5 4L2 2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+    <span id="active-tool-name">SELECT</span>
+  </div>
+
+  <div class="topbar-right">
+    <button class="btn-import" id="btn-import">导入</button>
+    <button class="btn-ghost" id="btn-export">导出</button>
+    <button class="btn-primary" id="btn-save">保存</button>
+  </div>
+</div>
+
+<!-- WORKSPACE -->
+<div class="workspace">
+
+  <!-- LEFT SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-tabs">
+      <button class="stab active" data-tab="axes">坐标轴</button>
+      <button class="stab" data-tab="elements">图层</button>
+      <button class="stab" data-tab="templates">模板</button>
+    </div>
+
+    <!-- AXES TAB -->
+    <div class="sidebar-content" id="tab-axes">
+      <div class="section-title">横轴配置</div>
+      <div class="axis-card">
+        <div class="axis-header">
+          <div class="axis-dot" id="x-axis-dot"></div>
+          <span class="axis-name-label">X 轴（横轴）</span>
+          <div class="axis-toggle" id="x-axis-toggle"></div>
+        </div>
+        <div class="field-row">
+          <div class="field-label">轴标题</div>
+          <input class="field-input" id="x-title-input">
+        </div>
+        <div class="field-row">
+          <div class="field-label">左端标签</div>
+          <input class="field-input" id="x-min-label-input">
+        </div>
+        <div class="field-row">
+          <div class="field-label">右端标签</div>
+          <input class="field-input" id="x-max-label-input">
+        </div>
+        <div class="field-row">
+          <div class="field-label">轴颜色</div>
+          <div class="color-row" id="x-color-row"></div>
+        </div>
+        <div class="field-row">
+          <div class="field-label">刻度范围</div>
+          <div class="range-row">
+            <input class="range-input" id="x-range-min">
+            <span class="range-sep">—</span>
+            <input class="range-input" id="x-range-max">
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">纵轴配置</div>
+      <div class="axis-card">
+        <div class="axis-header">
+          <div class="axis-dot" id="y-axis-dot"></div>
+          <span class="axis-name-label">Y 轴（纵轴）</span>
+          <div class="axis-toggle" id="y-axis-toggle"></div>
+        </div>
+        <div class="field-row">
+          <div class="field-label">轴标题</div>
+          <input class="field-input" id="y-title-input">
+        </div>
+        <div class="field-row">
+          <div class="field-label">下端标签</div>
+          <input class="field-input" id="y-min-label-input">
+        </div>
+        <div class="field-row">
+          <div class="field-label">上端标签</div>
+          <input class="field-input" id="y-max-label-input">
+        </div>
+        <div class="field-row">
+          <div class="field-label">轴颜色</div>
+          <div class="color-row" id="y-color-row"></div>
+        </div>
+        <div class="field-row">
+          <div class="field-label">刻度范围</div>
+          <div class="range-row">
+            <input class="range-input" id="y-range-min">
+            <span class="range-sep">—</span>
+            <input class="range-input" id="y-range-max">
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">象限配置</div>
+      <div class="quad-grid" id="quad-config"></div>
+    </div>
+
+    <!-- ELEMENTS TAB -->
+    <div class="sidebar-content" id="tab-elements" style="display:none">
+      <div class="section-title">图层列表</div>
+      <div id="element-list"></div>
+    </div>
+
+    <!-- TEMPLATES TAB -->
+    <div class="sidebar-content" id="tab-templates" style="display:none">
+      <div class="section-title">快速模板</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="quad-cell" data-template="eisenhower" style="border-color:rgba(232,201,125,.25);cursor:pointer">
+          <div class="quad-cell-name" style="color:var(--accent);margin-bottom:4px">⏱ 时间管理矩阵</div>
+          <div style="font-size:10px;color:var(--text-dim);line-height:1.5">重要程度 × 紧急程度<br>经典艾森豪威尔矩阵</div>
+        </div>
+        <div class="quad-cell" data-template="boston" style="border-color:rgba(125,212,232,.25);cursor:pointer">
+          <div class="quad-cell-name" style="color:var(--accent2);margin-bottom:4px">📊 波士顿矩阵</div>
+          <div style="font-size:10px;color:var(--text-dim);line-height:1.5">市场份额 × 市场增速<br>产品组合分析</div>
+        </div>
+        <div class="quad-cell" data-template="impact" style="border-color:rgba(141,232,125,.25);cursor:pointer">
+          <div class="quad-cell-name" style="color:var(--accent4);margin-bottom:4px">💡 影响/努力矩阵</div>
+          <div style="font-size:10px;color:var(--text-dim);line-height:1.5">影响程度 × 执行难度<br>优先级决策工具</div>
+        </div>
+        <div class="quad-cell" data-template="risk" style="border-color:rgba(232,125,154,.25);cursor:pointer">
+          <div class="quad-cell-name" style="color:var(--accent3);margin-bottom:4px">🎯 风险评估矩阵</div>
+          <div style="font-size:10px;color:var(--text-dim);line-height:1.5">可能性 × 影响程度<br>项目风险管理</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CANVAS -->
+  <div class="canvas-area">
+    <div class="canvas-outer" id="canvas-outer">
+      <div class="canvas-container" id="canvas">
+        <div class="canvas-bg"></div>
+
+        <div class="quadrants">
+          <div class="quad" id="q2"><span class="quad-label-corner" id="q2-label"></span></div>
+          <div class="quad" id="q1"><span class="quad-label-corner" id="q1-label"></span></div>
+          <div class="quad" id="q3"><span class="quad-label-corner" id="q3-label"></span></div>
+          <div class="quad" id="q4"><span class="quad-label-corner" id="q4-label"></span></div>
+        </div>
+
+        <div class="axis-x" id="axis-x-line"></div>
+        <div class="axis-y" id="axis-y-line"></div>
+
+        <div class="tick-x" style="left: calc(60px + (680px - 90px) * 0.25)"></div>
+        <div class="tick-x" style="left: calc(60px + (680px - 90px) * 0.75)"></div>
+        <div class="tick-y" style="top: calc(40px + (620px - 90px) * 0.25)"></div>
+        <div class="tick-y" style="top: calc(40px + (620px - 90px) * 0.75)"></div>
+
+        <div class="axis-label axis-label-x-left" id="x-min-label-display"></div>
+        <div class="axis-label axis-label-x-right" id="x-max-label-display"></div>
+        <div class="axis-label axis-label-x-title" id="x-title-label"></div>
+        <div class="axis-label axis-label-y-bottom" id="y-min-label-display"></div>
+        <div class="axis-label axis-label-y-top" id="y-max-label-display"></div>
+        <div class="axis-label axis-label-y-title" id="y-title-label"></div>
+
+        <div id="elements-container"></div>
+      </div>
+    </div>
+    <div class="canvas-hint">双击画布添加元素 · 拖拽移动 · Ctrl+Z 撤销</div>
+  </div>
+
+  <!-- RIGHT PROPERTIES PANEL -->
+  <div class="right-panel">
+    <div class="rpanel-header">属性面板</div>
+    <div class="rpanel-body" id="properties-body"></div>
+  </div>
+</div>
+
+<!-- STATUS BAR -->
+<div class="statusbar">
+  <div class="status-item">
+    <div class="status-dot" id="save-dot"></div>
+    <span id="save-status">已保存</span>
+  </div>
+  <div class="status-item" id="element-count"></div>
+  <div class="status-item" id="selected-info"></div>
+  <div class="zoom-ctrl">
+    <button class="zoom-btn" id="zoom-out">−</button>
+    <span id="zoom-level" style="min-width:36px;text-align:center">100%</span>
+    <button class="zoom-btn" id="zoom-in">+</button>
+    <span style="margin-left:4px;color:rgba(255,255,255,.2)">|</span>
+    <button class="zoom-btn" id="zoom-fit" style="width:auto;padding:0 6px;font-size:9px">适应</button>
+  </div>
+</div>
+
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>
