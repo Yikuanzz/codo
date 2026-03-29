@@ -1,6 +1,8 @@
 import { store } from './store'
 import { EXTENDED_COLORS, ElementKind } from './types'
-import { getElementQuadrant } from './canvas'
+import { getElementQuadrant, renderCanvas } from './canvas'
+import { scheduleSave } from './storage'
+import { getLucideSvg, PRESET_ICON_KEYS } from './icons'
 
 const KINDS: ElementKind[] = ['card', 'tag', 'icon', 'text']
 const KIND_LABELS: Record<ElementKind, string> = {
@@ -36,8 +38,8 @@ export function renderProperties(): void {
       <input class="prop-input" id="prop-text" value="${escHtml(el.text)}">
     </div>
     <div class="prop-row">
-      <div class="prop-label">Emoji / 图标</div>
-      <input class="prop-input" id="prop-emoji" value="${el.emoji}" style="font-size:16px">
+      <div class="prop-label">图标 (Lucide)</div>
+      <div class="prop-icon-grid" id="prop-icon-grid"></div>
     </div>
     <div class="prop-row">
       <div class="prop-label">位置 (X / Y)</div>
@@ -83,7 +85,20 @@ export function renderProperties(): void {
     </div>
   `
 
-  // Color swatches
+  const grid = document.getElementById('prop-icon-grid')!
+  const currentIcon = el.iconName || 'star'
+  for (const key of PRESET_ICON_KEYS) {
+    const btn = document.createElement('button')
+    btn.type = 'button'
+    btn.className = 'prop-icon-btn' + (key === currentIcon ? ' selected' : '')
+    btn.title = key
+    btn.appendChild(getLucideSvg(key, 14, el.color))
+    btn.addEventListener('click', () => {
+      store.updateElement(el.id, { iconName: key }, true)
+    })
+    grid.appendChild(btn)
+  }
+
   const colorRow = document.getElementById('prop-color-row')!
   for (const c of EXTENDED_COLORS) {
     const swatch = document.createElement('div')
@@ -96,7 +111,6 @@ export function renderProperties(): void {
     colorRow.appendChild(swatch)
   }
 
-  // Type pills
   const pillContainer = document.getElementById('type-pills')!
   for (const k of KINDS) {
     const pill = document.createElement('div')
@@ -109,9 +123,7 @@ export function renderProperties(): void {
     pillContainer.appendChild(pill)
   }
 
-  // Event bindings
-  bindPropInput('prop-text', el.id, 'text')
-  bindPropInput('prop-emoji', el.id, 'emoji')
+  bindSilentText('prop-text', el.id, 'text')
   bindPropNumber('prop-x', el.id, 'x')
   bindPropNumber('prop-y', el.id, 'y')
 
@@ -125,8 +137,10 @@ export function renderProperties(): void {
   const opSlider = document.getElementById('prop-opacity') as HTMLInputElement
   opSlider.addEventListener('input', () => {
     const val = Number(opSlider.value) / 100
-    store.updateElement(el.id, { opacity: val })
+    store.updateElementNoNotify(el.id, { opacity: val })
     document.getElementById('opacity-val')!.textContent = `${opSlider.value}%`
+    renderCanvas()
+    scheduleSave()
   })
 
   document.getElementById('layer-up')!.addEventListener('click', () => store.moveElementLayer(el.id, 'up'))
@@ -134,10 +148,13 @@ export function renderProperties(): void {
   document.getElementById('layer-delete')!.addEventListener('click', () => store.removeElement(el.id))
 }
 
-function bindPropInput(inputId: string, elId: string, field: string): void {
+/** 连续输入时不触发全量重渲染，避免输入框失焦 */
+function bindSilentText(inputId: string, elId: string, field: 'text'): void {
   const input = document.getElementById(inputId) as HTMLInputElement
   input.addEventListener('input', () => {
-    store.updateElement(elId, { [field]: input.value })
+    store.updateElementNoNotify(elId, { [field]: input.value })
+    renderCanvas()
+    scheduleSave()
   })
 }
 

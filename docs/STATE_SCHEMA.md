@@ -40,7 +40,8 @@
 | `id` | `string` | 唯一标识，格式 `el-{timestamp}-{seq}` |
 | `kind` | `'card' \| 'tag' \| 'icon' \| 'text'` | 元素视觉类型 |
 | `text` | `string` | 显示文本 |
-| `emoji` | `string` | 前缀 Emoji |
+| `emoji` | `string` | 遗留字段，兼容旧 JSON |
+| `iconName` | `string` | Lucide 图标 id（kebab-case），如 `star`、`file-text` |
 | `x` | `number` | 画布像素坐标 X |
 | `y` | `number` | 画布像素坐标 Y |
 | `color` | `string` | 元素主题色 hex |
@@ -60,6 +61,8 @@
 | `zoom` | `number` | 缩放倍率（0.3–3） |
 | `panX` | `number` | 水平平移（预留） |
 | `panY` | `number` | 垂直平移（预留） |
+
+导入或读取 localStorage 时，若元素缺少 `iconName`，会默认补为 `star`。
 
 ## 持久化约定
 

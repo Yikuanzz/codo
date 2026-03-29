@@ -1,5 +1,5 @@
 import { store } from './store'
-import { AppState, SCHEMA_VERSION, createDefaultState } from './types'
+import { AppState, QuadElement, SCHEMA_VERSION, createDefaultState } from './types'
 
 const STORAGE_KEY = 'codo-quadrant-state'
 let saveTimer: ReturnType<typeof setTimeout> | null = null
@@ -13,13 +13,27 @@ export function scheduleSave(): void {
   }, 400)
 }
 
+function normalizeElements(elements: QuadElement[]): QuadElement[] {
+  return elements.map(e => ({
+    ...e,
+    iconName: e.iconName && e.iconName.length > 0 ? e.iconName : 'star',
+  }))
+}
+
+export function normalizeAppState(raw: AppState): AppState {
+  return {
+    ...raw,
+    elements: normalizeElements(raw.elements),
+  }
+}
+
 export function loadFromStorage(): void {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return
     const parsed: AppState = JSON.parse(raw)
     if (parsed.version === SCHEMA_VERSION) {
-      store.load(parsed)
+      store.load(normalizeAppState(parsed))
     }
   } catch { /* corrupt data — use default */ }
 }
@@ -46,7 +60,7 @@ export function importJSON(): void {
       try {
         const data: AppState = JSON.parse(reader.result as string)
         if (data.version === SCHEMA_VERSION) {
-          store.load(data)
+          store.load(normalizeAppState(data))
         } else {
           alert('不兼容的文件版本')
         }

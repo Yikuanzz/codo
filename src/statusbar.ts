@@ -13,28 +13,33 @@ export function renderStatusBar(): void {
     `${Math.round(viewport.zoom * 100)}%`
 }
 
-export function initZoom(): void {
-  document.getElementById('zoom-in')!.addEventListener('click', () => {
-    const z = Math.min(3, store.get().viewport.zoom + 0.1)
-    store.patch('viewport' as 'axes.x', { zoom: z } as never)
-    applyZoom()
-  })
-  document.getElementById('zoom-out')!.addEventListener('click', () => {
-    const z = Math.max(0.3, store.get().viewport.zoom - 0.1)
-    store.patch('viewport' as 'axes.x', { zoom: z } as never)
-    applyZoom()
-  })
-  document.getElementById('zoom-fit')!.addEventListener('click', () => {
-    store.patch('viewport' as 'axes.x', { zoom: 1, panX: 0, panY: 0 } as never)
-    applyZoom()
-  })
-}
-
-function applyZoom(): void {
+export function applyZoom(): void {
   const { viewport } = store.get()
   const canvas = document.getElementById('canvas')
   if (canvas) {
     canvas.style.transform = `scale(${viewport.zoom})`
     canvas.style.transformOrigin = 'center center'
   }
+}
+
+export function initZoom(): void {
+  const zoomBy = (delta: number) => {
+    const z = Math.min(3, Math.max(0.25, store.get().viewport.zoom + delta))
+    store.patchViewport({ zoom: z })
+    applyZoom()
+  }
+
+  document.getElementById('zoom-in')!.addEventListener('click', () => zoomBy(0.1))
+  document.getElementById('zoom-out')!.addEventListener('click', () => zoomBy(-0.1))
+  document.getElementById('zoom-fit')!.addEventListener('click', () => {
+    store.patchViewport({ zoom: 1, panX: 0, panY: 0 })
+    applyZoom()
+  })
+
+  const outer = document.getElementById('canvas-outer')!
+  outer.addEventListener('wheel', (e) => {
+    e.preventDefault()
+    const delta = e.deltaY < 0 ? 0.06 : -0.06
+    zoomBy(delta)
+  }, { passive: false })
 }

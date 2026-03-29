@@ -1,6 +1,7 @@
 import { store } from './store'
-import { COLORS } from './types'
+import { COLORS, QuadrantConfig } from './types'
 import { getElementQuadrant } from './canvas'
+import { getLucideSvg } from './icons'
 
 /* ── Tab switching ── */
 export function initTabs(): void {
@@ -146,24 +147,33 @@ export function renderElementList(): void {
   list.innerHTML = ''
 
   for (const el of [...elements].reverse()) {
-    const kindEmoji: Record<string, string> = { card: '📝', tag: '🏷', icon: '⭐', text: '✏️' }
     const quad = getElementQuadrant(el)
     const item = document.createElement('div')
     item.classList.add('element-item')
     if (el.id === selectedId) item.classList.add('selected')
-    item.innerHTML = `
-      <div class="element-icon" style="background:${colorAlpha(el.color, 0.12)};color:${el.color}">${kindEmoji[el.kind] ?? '📝'}</div>
-      <div class="element-info">
-        <div class="element-name">${el.text}</div>
-        <div class="element-pos">${quad} · (${Math.round(el.x)}, ${Math.round(el.y)})</div>
-      </div>
-      <div class="element-vis" data-vis-id="${el.id}">${el.visible ? '👁' : '🚫'}</div>
+    const ic = document.createElement('div')
+    ic.className = 'element-icon'
+    ic.style.background = colorAlpha(el.color, 0.12)
+    ic.style.color = el.color
+    ic.appendChild(getLucideSvg(el.iconName || 'star', 14, el.color))
+    const info = document.createElement('div')
+    info.className = 'element-info'
+    info.innerHTML = `
+      <div class="element-name">${escapeElText(el.text)}</div>
+      <div class="element-pos">${quad} · (${Math.round(el.x)}, ${Math.round(el.y)})</div>
     `
+    const vis = document.createElement('div')
+    vis.className = 'element-vis'
+    vis.dataset.visId = el.id
+    vis.textContent = el.visible ? '👁' : '🚫'
+    item.appendChild(ic)
+    item.appendChild(info)
+    item.appendChild(vis)
     item.addEventListener('click', (e) => {
       if ((e.target as HTMLElement).closest('.element-vis')) return
       store.set({ selectedId: el.id })
     })
-    const visBtn = item.querySelector('.element-vis')!
+    const visBtn = vis
     visBtn.addEventListener('click', () => {
       store.updateElement(el.id, { visible: !el.visible }, true)
     })
@@ -178,29 +188,79 @@ function colorAlpha(hex: string, alpha: number): string {
   return `rgba(${r},${g},${b},${alpha})`
 }
 
+function escapeElText(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
+
 /* ── Templates ── */
+
+interface TemplatePreset {
+  axes: {
+    x: { title: string; minLabel: string; maxLabel: string; color: string }
+    y: { title: string; minLabel: string; maxLabel: string; color: string }
+  }
+  quadrants: [QuadrantConfig, QuadrantConfig, QuadrantConfig, QuadrantConfig]
+}
+
+const TEMPLATES: Record<string, TemplatePreset> = {
+  eisenhower: {
+    axes: {
+      x: { title: '重要程度', minLabel: '不重要', maxLabel: '非常重要', color: '#e8c97d' },
+      y: { title: '紧急程度', minLabel: '不紧急', maxLabel: '非常紧急', color: '#7dd4e8' },
+    },
+    quadrants: [
+      { label: '第一象限', emoji: '🔥', name: '重要且紧急', tint: 'rgba(232,201,125,0.06)' },
+      { label: '第二象限', emoji: '⚡', name: '紧急不重要', tint: 'rgba(125,212,232,0.06)' },
+      { label: '第三象限', emoji: '📋', name: '不重要不紧急', tint: 'rgba(141,232,125,0.06)' },
+      { label: '第四象限', emoji: '📌', name: '重要不紧急', tint: 'rgba(232,125,154,0.06)' },
+    ],
+  },
+  boston: {
+    axes: {
+      x: { title: '市场份额', minLabel: '低', maxLabel: '高', color: '#7dd4e8' },
+      y: { title: '市场增速', minLabel: '低', maxLabel: '高', color: '#e87d9a' },
+    },
+    quadrants: [
+      { label: '第一象限', emoji: '⭐', name: '明星产品', tint: 'rgba(125,212,232,0.06)' },
+      { label: '第二象限', emoji: '❓', name: '问题产品', tint: 'rgba(232,125,154,0.06)' },
+      { label: '第三象限', emoji: '🐕', name: '瘦狗产品', tint: 'rgba(122,122,138,0.06)' },
+      { label: '第四象限', emoji: '🐄', name: '金牛产品', tint: 'rgba(141,232,125,0.06)' },
+    ],
+  },
+  impact: {
+    axes: {
+      x: { title: '执行难度', minLabel: '容易', maxLabel: '困难', color: '#8de87d' },
+      y: { title: '影响程度', minLabel: '低', maxLabel: '高', color: '#c47de8' },
+    },
+    quadrants: [
+      { label: '第一象限', emoji: '🏗️', name: '重大项目', tint: 'rgba(196,125,232,0.06)' },
+      { label: '第二象限', emoji: '🚀', name: '速赢项目', tint: 'rgba(141,232,125,0.06)' },
+      { label: '第三象限', emoji: '📝', name: '低优先级', tint: 'rgba(122,122,138,0.06)' },
+      { label: '第四象限', emoji: '⏳', name: '徒劳之功', tint: 'rgba(232,168,125,0.06)' },
+    ],
+  },
+  risk: {
+    axes: {
+      x: { title: '可能性', minLabel: '低', maxLabel: '高', color: '#e87d9a' },
+      y: { title: '影响程度', minLabel: '低', maxLabel: '高', color: '#e8a87d' },
+    },
+    quadrants: [
+      { label: '第一象限', emoji: '🔴', name: '关键风险', tint: 'rgba(232,125,154,0.06)' },
+      { label: '第二象限', emoji: '🟠', name: '重大风险', tint: 'rgba(232,168,125,0.06)' },
+      { label: '第三象限', emoji: '🟢', name: '可忽略风险', tint: 'rgba(141,232,125,0.06)' },
+      { label: '第四象限', emoji: '🟡', name: '一般风险', tint: 'rgba(232,201,125,0.06)' },
+    ],
+  },
+}
+
 export function initTemplates(): void {
   document.querySelectorAll<HTMLElement>('[data-template]').forEach(cell => {
     cell.addEventListener('click', () => {
-      const t = cell.dataset.template
-      switch (t) {
-        case 'eisenhower':
-          store.patch('axes.x', { title: '重要程度', minLabel: '不重要', maxLabel: '非常重要', color: '#e8c97d' })
-          store.patch('axes.y', { title: '紧急程度', minLabel: '不紧急', maxLabel: '非常紧急', color: '#7dd4e8' })
-          break
-        case 'boston':
-          store.patch('axes.x', { title: '市场份额', minLabel: '低', maxLabel: '高', color: '#7dd4e8' })
-          store.patch('axes.y', { title: '市场增速', minLabel: '低', maxLabel: '高', color: '#e87d9a' })
-          break
-        case 'impact':
-          store.patch('axes.x', { title: '执行难度', minLabel: '容易', maxLabel: '困难', color: '#8de87d' })
-          store.patch('axes.y', { title: '影响程度', minLabel: '低', maxLabel: '高', color: '#c47de8' })
-          break
-        case 'risk':
-          store.patch('axes.x', { title: '可能性', minLabel: '低', maxLabel: '高', color: '#e87d9a' })
-          store.patch('axes.y', { title: '影响程度', minLabel: '低', maxLabel: '高', color: '#e8a87d' })
-          break
-      }
+      const preset = TEMPLATES[cell.dataset.template ?? '']
+      if (!preset) return
+      store.patch('axes.x', preset.axes.x)
+      store.patch('axes.y', preset.axes.y)
+      store.set({ quadrants: preset.quadrants })
     })
   })
 }

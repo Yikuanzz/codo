@@ -11,6 +11,7 @@ export interface QuadrantConfig {
   label: string
   emoji: string
   name: string
+  tint?: string
 }
 
 export type ElementKind = 'card' | 'tag' | 'icon' | 'text'
@@ -20,6 +21,7 @@ export interface QuadElement {
   kind: ElementKind
   text: string
   emoji: string
+  iconName: string
   x: number
   y: number
   color: string
@@ -65,36 +67,36 @@ export function createDefaultState(): AppState {
     version: SCHEMA_VERSION,
     axes: {
       x: {
-        title: '重要程度',
-        minLabel: '不重要',
-        maxLabel: '非常重要',
+        title: '\u91cd\u8981\u7a0b\u5ea6',
+        minLabel: '\u4e0d\u91cd\u8981',
+        maxLabel: '\u975e\u5e38\u91cd\u8981',
         color: '#e8c97d',
         range: [0, 10],
         visible: true,
       },
       y: {
-        title: '紧急程度',
-        minLabel: '不紧急',
-        maxLabel: '非常紧急',
+        title: '\u7d27\u6025\u7a0b\u5ea6',
+        minLabel: '\u4e0d\u7d27\u6025',
+        maxLabel: '\u975e\u5e38\u7d27\u6025',
         color: '#7dd4e8',
         range: [0, 10],
         visible: true,
       },
     },
     quadrants: [
-      { label: '第一象限', emoji: '🔥', name: '重要且紧急' },
-      { label: '第二象限', emoji: '⚡', name: '紧急不重要' },
-      { label: '第三象限', emoji: '📋', name: '不重要不紧急' },
-      { label: '第四象限', emoji: '📌', name: '重要不紧急' },
+      { label: '第一象限', emoji: '🔥', name: '重要且紧急', tint: 'rgba(232,201,125,0.06)' },
+      { label: '第二象限', emoji: '⚡', name: '紧急不重要', tint: 'rgba(125,212,232,0.06)' },
+      { label: '第三象限', emoji: '📋', name: '不重要不紧急', tint: 'rgba(141,232,125,0.06)' },
+      { label: '第四象限', emoji: '📌', name: '重要不紧急', tint: 'rgba(232,125,154,0.06)' },
     ],
     elements: [
-      { id: 'el-1', kind: 'card', text: '项目A评审', emoji: '🔥', x: 310, y: 110, color: '#e8c97d', fontSize: 12, opacity: 0.9, visible: true, zIndex: 7 },
-      { id: 'el-2', kind: 'tag', text: '修复生产Bug', emoji: '⚡', x: 360, y: 60, color: '#7dd4e8', fontSize: 11, opacity: 0.9, visible: true, zIndex: 6 },
-      { id: 'el-3', kind: 'card', text: '季度规划', emoji: '📌', x: 380, y: 310, color: '#e87d9a', fontSize: 12, opacity: 0.9, visible: true, zIndex: 5 },
-      { id: 'el-4', kind: 'icon', text: '整理邮件', emoji: '⭐', x: 130, y: 340, color: '#8de87d', fontSize: 18, opacity: 0.9, visible: true, zIndex: 4 },
-      { id: 'el-5', kind: 'tag', text: '客户提案', emoji: '🎯', x: 70, y: 120, color: '#e8c97d', fontSize: 11, opacity: 0.9, visible: true, zIndex: 3 },
-      { id: 'el-6', kind: 'card', text: '团队周会', emoji: '📞', x: 80, y: 180, color: '#7dd4e8', fontSize: 12, opacity: 0.9, visible: true, zIndex: 2 },
-      { id: 'el-7', kind: 'text', text: '阅读技术文章', emoji: '📚', x: 250, y: 400, color: '#7a7a8a', fontSize: 11, opacity: 0.9, visible: true, zIndex: 1 },
+      { id: 'el-1', kind: 'card', text: '\u9879\u76eeA\u8bc4\u5ba1', emoji: '\uD83D\uDD25', iconName: 'flame', x: 310, y: 110, color: '#e8c97d', fontSize: 12, opacity: 0.9, visible: true, zIndex: 7 },
+      { id: 'el-2', kind: 'tag', text: '\u4fee\u590d\u751f\u4ea7Bug', emoji: '\u26A1', iconName: 'zap', x: 360, y: 60, color: '#7dd4e8', fontSize: 11, opacity: 0.9, visible: true, zIndex: 6 },
+      { id: 'el-3', kind: 'card', text: '\u5b63\u5ea6\u89c4\u5212', emoji: '\uD83D\uDCCC', iconName: 'target', x: 380, y: 310, color: '#e87d9a', fontSize: 12, opacity: 0.9, visible: true, zIndex: 5 },
+      { id: 'el-4', kind: 'icon', text: '\u6574\u7406\u90ae\u4ef6', emoji: '\u2B50', iconName: 'star', x: 130, y: 340, color: '#8de87d', fontSize: 18, opacity: 0.9, visible: true, zIndex: 4 },
+      { id: 'el-5', kind: 'tag', text: '\u5ba2\u6237\u63d0\u6848', emoji: '\uD83C\uDFAF', iconName: 'crosshair', x: 70, y: 120, color: '#e8c97d', fontSize: 11, opacity: 0.9, visible: true, zIndex: 3 },
+      { id: 'el-6', kind: 'card', text: '\u56e2\u961f\u5468\u4f1a', emoji: '\uD83D\uDCDE', iconName: 'phone', x: 80, y: 180, color: '#7dd4e8', fontSize: 12, opacity: 0.9, visible: true, zIndex: 2 },
+      { id: 'el-7', kind: 'text', text: '\u9605\u8bfb\u6280\u672f\u6587\u7ae0', emoji: '\uD83D\uDCDA', iconName: 'book-open', x: 250, y: 400, color: '#7a7a8a', fontSize: 11, opacity: 0.9, visible: true, zIndex: 1 },
     ],
     selectedId: null,
     activeTool: 'select',

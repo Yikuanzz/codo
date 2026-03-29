@@ -29,8 +29,9 @@ class Store {
     this.notify()
   }
 
-  /** Deep-merge for nested axes / quadrants updates */
+  /** Deep-merge for nested axes / viewport */
   patch(path: 'axes.x' | 'axes.y', value: Partial<AppState['axes']['x']>, pushUndo?: boolean): void
+  patch(path: 'viewport', value: Partial<AppState['viewport']>, pushUndo?: boolean): void
   patch(path: string, value: unknown, pushUndo = false): void {
     if (pushUndo) {
       this.undoStack.push(structuredClone(this.state))
@@ -65,6 +66,19 @@ class Store {
       ),
     }
     this.notify()
+  }
+
+  updateElementNoNotify(id: string, updates: Partial<AppState['elements'][number]>): void {
+    this.state = {
+      ...this.state,
+      elements: this.state.elements.map(el =>
+        el.id === id ? { ...el, ...updates } : el
+      ),
+    }
+  }
+
+  patchViewport(value: Partial<AppState['viewport']>, pushUndo = false): void {
+    this.patch('viewport', value, pushUndo)
   }
 
   addElement(el: AppState['elements'][number], pushUndo = true): void {

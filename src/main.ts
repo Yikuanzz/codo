@@ -6,7 +6,7 @@ import { initCanvas, renderCanvas, renderAxisLabels } from './canvas'
 import { initTabs, initAxisBindings, initTemplates, renderAxisSidebar, renderQuadrantConfig, renderElementList } from './sidebar'
 import { initToolbar, renderToolbar } from './toolbar'
 import { renderProperties } from './properties'
-import { renderStatusBar, initZoom } from './statusbar'
+import { renderStatusBar, initZoom, applyZoom } from './statusbar'
 
 function renderAll(): void {
   renderAxisSidebar()
@@ -61,6 +61,7 @@ function init(): void {
   store.subscribe(renderAll)
 
   renderAll()
+  applyZoom()
 }
 
 document.addEventListener('DOMContentLoaded', init)
