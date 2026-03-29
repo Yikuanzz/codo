@@ -169,8 +169,13 @@ function onMouseUp(): void {
 }
 
 let activeInlineInput: HTMLInputElement | null = null
+let inlineEditHost: HTMLElement | null = null
 
 function closeInlineEdit(): void {
+  if (inlineEditHost) {
+    inlineEditHost.classList.remove('canvas-element--inline-edit')
+    inlineEditHost = null
+  }
   if (activeInlineInput) {
     activeInlineInput.remove()
     activeInlineInput = null
@@ -182,18 +187,41 @@ function openInlineEdit(elId: string, dom: HTMLElement): void {
   if (!el || el.kind === 'icon') return
   closeInlineEdit()
 
+  inlineEditHost = dom
+  dom.classList.add('canvas-element--inline-edit')
+
   const input = document.createElement('input')
   input.type = 'text'
   input.value = el.text
   input.className = 'inline-edit-input'
-  input.style.left = `${el.x}px`
-  input.style.top = `${el.y}px`
-  input.style.fontSize = `${el.fontSize}px`
-  input.style.color = el.color
-  input.style.zIndex = String(el.zIndex + 1000)
-  input.style.minWidth = `${Math.max(dom.offsetWidth, 60)}px`
+  input.dataset.kind = el.kind
 
   const container = document.getElementById('elements-container')!
+  // 使用 offset*（画布局部坐标），勿用 getBoundingClientRect 差值：#canvas 带 scale(zoom) 时
+  // 视口坐标与 position:left/top 的坐标系不一致，会导致输入框拖到别处。
+  const w = Math.max(1, dom.offsetWidth)
+  const h = Math.max(1, dom.offsetHeight)
+
+  const cs = getComputedStyle(dom)
+  input.style.left = `${dom.offsetLeft}px`
+  input.style.top = `${dom.offsetTop}px`
+  input.style.width = `${w}px`
+  input.style.height = `${h}px`
+  input.style.boxSizing = 'border-box'
+  input.style.fontSize = cs.fontSize
+  input.style.fontWeight = cs.fontWeight
+  input.style.letterSpacing = cs.letterSpacing
+  input.style.lineHeight = cs.lineHeight
+  input.style.color = el.color
+  input.style.borderRadius = cs.borderRadius
+  input.style.padding = cs.padding
+  input.style.border = `${cs.borderTopWidth} ${cs.borderTopStyle} ${cs.borderTopColor}`
+  input.style.background = cs.backgroundColor
+  if (cs.backdropFilter && cs.backdropFilter !== 'none') {
+    input.style.backdropFilter = cs.backdropFilter
+  }
+  input.style.zIndex = String(el.zIndex + 1000)
+
   container.appendChild(input)
   activeInlineInput = input
   requestAnimationFrame(() => { input.focus(); input.select() })
@@ -235,6 +263,15 @@ function defaultIconForTool(tool: string, kind: ElementKind): string {
 }
 
 function onCanvasDblClick(e: MouseEvent): void {
+  const dom = (e.target as HTMLElement).closest('.canvas-element') as HTMLElement | null
+  if (dom?.dataset.id) {
+    const quad = store.get().elements.find(x => x.id === dom.dataset.id)
+    if (quad && quad.kind !== 'icon') {
+      e.preventDefault()
+      openInlineEdit(dom.dataset.id, dom)
+      return
+    }
+  }
   const loc = canvasLocalPoint(e.clientX, e.clientY)
   if (loc.x < 0 || loc.y < 0 || loc.x > CANVAS_W || loc.y > CANVAS_H) return
   createElementAtPoint(loc)

@@ -537,15 +537,32 @@ body {
 .canvas-element:active { cursor: grabbing; }
 .canvas-element.hidden { display: none; }
 
+/* 内联编辑时隐藏原节点内的图标与文字，避免与 input 叠出重影 */
+.canvas-element--inline-edit {
+  color: transparent !important;
+}
+.canvas-element--inline-edit .card-ic,
+.canvas-element--inline-edit > svg {
+  visibility: hidden;
+}
+
 .inline-edit-input {
   position: absolute;
-  background: rgba(22,24,31,.95);
-  border: 1px solid var(--accent);
-  border-radius: 6px;
-  padding: 4px 10px;
+  margin: 0;
   outline: none;
   font-family: 'Noto Sans SC', sans-serif;
-  box-shadow: 0 0 0 2px rgba(232,201,125,.25), 0 4px 16px rgba(0,0,0,.5);
+  caret-color: var(--accent);
+  box-shadow: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.inline-edit-input::selection {
+  background: rgba(232, 201, 125, 0.35);
+  color: inherit;
+}
+.inline-edit-input[data-kind='tag'] {
+  font-weight: 500;
+  letter-spacing: 0.04em;
 }
 
   .card-element {
